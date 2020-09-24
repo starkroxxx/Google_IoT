@@ -60,24 +60,24 @@ void loop()
       //Print the new value to the serial monitor
       Serial.println((char*) WelcomeFeed.lastread);
      
-    if (!strcmp((char*) WelcomeFeed.lastread, "LON"))
+    if (!strcmp((char*) WelcomeFeed.lastread, "GON"))
       {
                 digitalWrite(14,HIGH);
         
         
        }
-       else if (!strcmp((char*) WelcomeFeed.lastread, "LOFF"))
+       else if (!strcmp((char*) WelcomeFeed.lastread, "GOFF"))
       {
                 digitalWrite(14,LOW);
         
       }
-        else if (!strcmp((char*) WelcomeFeed.lastread, "FON"))
+        else if (!strcmp((char*) WelcomeFeed.lastread, "RON"))
       {
                 digitalWrite(12,HIGH);
         
         
        }
-       else if (!strcmp((char*) WelcomeFeed.lastread, "FOFF"))
+       else if (!strcmp((char*) WelcomeFeed.lastread, "ROFF"))
       {
                 digitalWrite(12,LOW);
         
@@ -93,13 +93,13 @@ void loop()
                 digitalWrite(0,LOW);
        
       }
-        else if (!strcmp((char*) WelcomeFeed.lastread, "PON"))
+        else if (!strcmp((char*) WelcomeFeed.lastread, "YON"))
       {
                 digitalWrite(2,HIGH);
      
         
        }
-       else if (!strcmp((char*) WelcomeFeed.lastread, "POFF"))
+       else if (!strcmp((char*) WelcomeFeed.lastread, "YOFF"))
       {
                 digitalWrite(2,LOW);
      
