@@ -1,0 +1,136 @@
+#include <ESP8266WiFi.h>
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include <Wire.h> 
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800,60000);
+
+#define WIFI_SSID "" // Add your WiFi adress
+#define WIFI_PASS "" // Add your password
+
+#define MQTT_SERV "io.adafruit.com"
+#define MQTT_PORT 1883
+#define MQTT_NAME "" //Add ypur adafruit username
+#define MQTT_PASS "" // Add the token generated from adafruit
+
+//Set up MQTT and WiFi clients
+WiFiClient client;
+Adafruit_MQTT_Client mqtt(&client, MQTT_SERV, MQTT_PORT, MQTT_NAME, MQTT_PASS);
+
+//Set up the feed you're subscribing to
+Adafruit_MQTT_Subscribe WelcomeFeed = Adafruit_MQTT_Subscribe(&mqtt, MQTT_NAME "/f/Test Board");
+boolean feed = true; // condition for alarm
+void setup()
+{
+  Serial.begin(115200);
+  timeClient.begin();
+  Wire.begin(D2, D1);
+   pinMode(14, OUTPUT);
+   pinMode(12, OUTPUT);
+   pinMode(0, OUTPUT);
+   pinMode(2, OUTPUT);
+  //Connect to WiFi
+  Serial.print("\n\nConnecting Wifi... ");
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+  }
+
+  Serial.println("OK!");
+
+  //Subscribe to the Test Board feed
+  mqtt.subscribe(&WelcomeFeed); 
+  
+}
+
+void loop()
+{
+  
+   MQTT_connect();
+   
+  Adafruit_MQTT_Subscribe * subscription;
+  while ((subscription = mqtt.readSubscription(5000)))
+  {
+    
+    if (subscription == &WelcomeFeed)
+    {
+      //Print the new value to the serial monitor
+      Serial.println((char*) WelcomeFeed.lastread);
+     
+    if (!strcmp((char*) WelcomeFeed.lastread, "LON"))
+      {
+                digitalWrite(14,HIGH);
+        
+        
+       }
+       else if (!strcmp((char*) WelcomeFeed.lastread, "LOFF"))
+      {
+                digitalWrite(14,LOW);
+        
+      }
+        else if (!strcmp((char*) WelcomeFeed.lastread, "FON"))
+      {
+                digitalWrite(12,HIGH);
+        
+        
+       }
+       else if (!strcmp((char*) WelcomeFeed.lastread, "FOFF"))
+      {
+                digitalWrite(12,LOW);
+        
+      }
+        else if (!strcmp((char*) WelcomeFeed.lastread, "BON"))
+      {
+                digitalWrite(0,HIGH);
+       
+        
+       }
+       else if (!strcmp((char*) WelcomeFeed.lastread, "BOFF"))
+      {
+                digitalWrite(0,LOW);
+       
+      }
+        else if (!strcmp((char*) WelcomeFeed.lastread, "PON"))
+      {
+                digitalWrite(2,HIGH);
+     
+        
+       }
+       else if (!strcmp((char*) WelcomeFeed.lastread, "POFF"))
+      {
+                digitalWrite(2,LOW);
+     
+       }
+       
+     }
+   }
+}
+
+void MQTT_connect() 
+{
+  int8_t ret;
+
+  // Stop if already connected.
+  if (mqtt.connected()) 
+  {
+    return;
+  }
+
+  uint8_t retries = 3;
+  while ((ret = mqtt.connect()) != 0) // connect will return 0 for connected
+  { 
+       
+       mqtt.disconnect();
+       delay(5000);  // wait 5 seconds
+       retries--;
+       if (retries == 0) 
+       {
+         // basically die and wait for WDT to reset me
+         while (1);
+       }
+  }
+  
+}
